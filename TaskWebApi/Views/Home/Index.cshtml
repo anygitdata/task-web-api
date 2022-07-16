@@ -1,0 +1,93 @@
+﻿
+
+<style>
+    li {
+        list-style-type: none;
+    }
+</style>
+
+
+<div class="container">
+<h1>Сводные данные</h1>
+
+<div class="mt-3">
+    <h3>Параметры, используемые в URL</h3>
+
+    <h5>Шаблон url for dortor:</h5>
+    <ul>
+        <li>Учетная карточка: /api/doctors/id (адресная строка браузера)</li>
+        <li>Список докторов: (адресная строка браузера)</li>
+        <li>
+            <ul style="list-style-type">
+                <li class="ulDetail">
+                    основной шаблон: /api/list/doctors/page/sort <br />
+                    <span>page - числовой идентификатор номера страницы (по умолчанию 1) </span><br />
+                    <span>sort - строковый идентификатор сортироваки (по умолчанию используется DoctrorId)</span><br />
+                    <span>Поля для сортировки: FullName Cabinet Sector (регистр не имеет значения) </span> <br />
+                    <span>
+                        Возможные варианты построения запроса: <br />
+                        /api/FullName -> первая страница сортировка по фамилии <br />
+                        /api/2       -> вторая страница сортировка по DoctorId <br />
+                        /api/2/cabinet -> вторая страница сортировка по Cabinet <br />
+                    </span>
+
+                </li>
+                <li></li>
+                <li></li>
+            </ul>
+        </li>
+        <li>Добавление новой карточки for Doctor: /api/doctor + JSONobject: Doctor type:POST</li>
+        <li>Изменение карточки: /api/doctor  + JSONobject: Doctor type:PUT </li>
+        <li>Удаление карточки: /api/doctor/PatientId type:DELETE</li>
+        <li>Страница отладки: /debgdoctor</li>
+    </ul>
+
+    <h5>Шаблон url for patient:</h5>
+    <ul>
+        <li>Учетная карточка: /api/patient/id</li>
+        <li>Список пациентов:</li>
+        <li>
+            <ul style="list-style-type">
+                <li class="ulDetail">
+                    основной шаблон: /api/list/patients/page/sort <br />
+                    <span>page - числовой идентификатор номера страницы (по умолчанию 1) </span><br />
+                    <span>sort - строковый идентификатор сортироваки (по умолчанию используется PatientId)</span><br />
+                    <span>Поля для сортировки: DateBirth Address Family (регистр не имеет значения) </span> <br />
+                    <span>
+                        Возможные варианты построения запроса: <br />
+                        /api/address -> первая страница сортировка по фамилии <br />
+                        /api/2       -> вторая страница сортировка по PatientId <br />
+                        /api/2/family -> вторая страница сортировка по Family <br />
+                    </span>
+
+                </li>
+                <li></li>
+                <li></li>
+            </ul>
+        </li>
+        <li>Изменение карточки: /api/doctor  + JSONobject: Doctor type:PUT </li>
+        <li>Удаление карточки: /api/doctor/PatientId</li>
+        <li>Страница отладки: /debgdoctor</li>
+    </ul>
+</div>
+
+
+</div>
+
+
+
+@section Sript{
+    <script>
+        
+        $(document).ready(function () {
+
+            console.log('verify message');
+
+        })
+
+    </script>
+
+}
+
+
+

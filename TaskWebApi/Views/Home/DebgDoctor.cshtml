@@ -1,0 +1,289 @@
+﻿
+<style>
+    .mainDiv {
+        width: 40rem;
+        background: #edfbfd
+    }
+</style>
+
+
+<div class="container mainDiv my-3" style="background: none">
+    <h2>Testing asp.net web api</h2>
+</div>
+
+
+<div class="container mt-2 border-top border-bottom border-dark py-2 mainDiv" >
+
+    <div class="text-danger" id="divError">
+
+    </div>
+
+    <div class="form-group">
+        <label>Method http</label>
+        <input class="form-control" type="text" id="txtHttp" placeholder="Http_methos" value="GET" />
+    </div>
+
+
+    <div class="form-group">
+        <div>Шаблон url:  /api/controller/id -> данные модели </div>
+        <div>Шаблон url:  /api/controller  -> список модели</div>
+        <div style="font-weight:500">Удалить запись -> в поле Methos http использовать POST <br/>
+        Использовать поля controller  and Id        
+        </div>
+        <div class="mt-1" style="font-weight:500">Результ см. в консоле </div>
+
+        <label class="mt-2">Поле для doctors || patients </label>
+        <input class="form-control" type="text" id="txtController" placeholder="Controller" />
+    </div>
+
+    <div class="form-group">
+        <label>Поле для id </label>
+        <input class="form-control" type="text" id="txtParam" placeholder="Параметр" />
+    </div>
+
+
+    <div class="mt-2">
+        <button id="btnForSimplComn" class="btn btn-primary">Старт</button>
+    </div>
+</div>
+
+<div class="container mt-2 border-top border-bottom border-dark py-2 mainDiv">
+    <div class="text-danger" id="divErrorLoad">
+
+    </div>
+    <h5>Изменение данных доктора</h5>
+
+    <div class="border-bottom border-primary pb-2">
+        <input style="width:3rem" type="text" id="idFolLoadData" />
+        <button id="btnForLoad" class="btn btn-info py-0">Загрузить данные для редактирования</button>
+    </div>
+
+    <div class="form-group">
+        <label>FullName</label>
+        <input class="form-control" type="text" id="FullName" />
+    </div>
+
+    <div id="divUl-data">
+        <ul>
+            <li id="liSpecializationId"></li>
+            <li id="liCabinetId"></li>
+            <li id="liSectorId"></li>
+
+        </ul>
+    </div>
+
+
+    <div class="mt-3">
+        <button id="btnForUpdate" class="py-1 btn btn-primary">Изменить</button>
+    </div>
+
+</div>
+
+
+<div class="container mt-2 border-top border-bottom border-dark py-2 mb-2 mainDiv">
+
+    <div class="text-danger" id="divErrorAdd">
+
+    </div>
+    <h5>Добавление доктора</h5>
+
+    <div class="form-group">
+        <label>FullName</label>
+        <input class="form-control" type="text" id="AddFullName" />
+    </div>
+
+
+    <div class="mt-3">
+        <button id="btnForAdd" class="py-1 btn btn-primary">Добавить</button>
+    </div>
+
+</div>
+
+
+
+
+
+@section Sript{
+    <script>
+
+        $(document).ready(function () {
+
+
+            let divUl_data = $('#divUl-data');
+            divUl_data.hide();
+
+            let show_divUl_data = false;
+
+            $('#btnForAdd').click(() => {
+
+                let divErrorAdd = $('#divErrorAdd');
+
+                let fullName = $('#AddFullName').val();
+
+                if (fullName == '') {
+                    divErrorAdd.text('Не заполнено поле Фамилия И.О.');
+                    return;
+                }
+
+                let data = {
+                    FullName: fullName,
+                    CabinetId: 4,
+                    SpecializationId: 1,
+                    SectorId: 1
+                }
+
+                let path = '/api/doctors';
+
+                $.ajax(path, {
+                    data: data,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: (data) => {
+
+                        console.log(data);
+
+                        $('#idFolLoadData').val(data.DoctorId);
+
+                        $('#FullName').val(data.FullName);
+
+                        LoadData_Doctor(data.DoctorId);
+                    }
+
+                });
+
+
+
+            });
+
+
+            $('#btnForUpdate').click(() => {
+
+                let FullName = $('#FullName');
+                let val = FullName.val();
+
+                let idDoctor = $('#idFolLoadData').val();
+
+
+                if (val == '') {
+                    divErr.text('Поле Фамилия И.О. не заполнено');
+                    return;
+                }
+
+                let path = '/api/doctors/';
+
+                let data = { DoctorId: idDoctor, FullName: val };
+
+
+                $.ajax(path, {
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: data,
+                    success: (data) => {
+                        FullName.val(data.FullName);
+                    }
+
+                });
+
+            })
+
+
+            $('#btnForLoad').click((e) => {
+
+                let divErrorLoad = $('#divErrorLoad');
+                divErrorLoad.empty();
+
+                let txt_idFolLoadData = $('#idFolLoadData');
+
+                if (txt_idFolLoadData.val() == '') {
+                    divErrorLoad.text('Введите doctorId');
+                    return;
+                }
+
+                let doctorId = txt_idFolLoadData.val()
+
+                let path = '/api/doctors/' + doctorId;
+
+                $.ajax(path, {
+                    type: 'GET',
+                    dataType: 'json',
+                    success: (data) => {
+                        $('#FullName').val(data.FullName);
+
+                        LoadData_Doctor(doctorId);
+                    }
+                });
+
+
+
+            });
+
+
+            function LoadData_Doctor(doctorId) {
+
+                let path = '/api/doctorsload/' + doctorId;
+
+                $.ajax(path, {
+                    dataType: 'json',
+                    success: (data) => {
+
+                        $('#liSectorId').text(data[0]);
+                        $('#liCabinetId').text(data[1]);
+                        $('#liSpecializationId').text(data[2]);
+
+                        if (show_divUl_data == false) {
+                            show_divUl_data = true;
+
+                            divUl_data.show();
+                        }
+                    }
+
+                });
+            }
+
+            $('#btnForSimplComn').click(() => {
+
+                let divErr = $('#divError');
+                divErr.empty();
+
+                let http = $('#txtHttp').val().toUpperCase();
+
+                if (http == '') {
+                    $('#txtHttp').val('GET');
+                    http = 'GET';
+                }
+
+
+                let controller = $('#txtController').val();
+                let param = $('#txtParam').val();
+
+                if (controller == '') {
+                    divErr.text('контроллер не определен');
+                    return;
+                }
+
+                let path = '/api/';
+
+                if (param != '')
+                    path += controller + '/' + param;
+                else
+                    path += controller;
+
+                $.ajax(path, {
+                    type: http,
+                    dataType: 'json',
+                    success: (data) => {
+                        console.log(data)
+                    }
+
+                });
+
+            })
+
+        })
+
+    </script>
+
+}
+
+
+
