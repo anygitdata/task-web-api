@@ -21,8 +21,8 @@ namespace TaskWebApi.Interface
                     || string.IsNullOrEmpty(item.FirstName)
                     || string.IsNullOrEmpty(item.LastName)   )
             {
-                var respMess = ResProc.Create_ResponseMessage("Не заполнено поле Ф.И.О",
-                            "empty FIO", System.Net.HttpStatusCode.InternalServerError);
+                var respMess = ResProc.Create_ResponseMessage("Empty FIO",
+                            "Empty FIO", System.Net.HttpStatusCode.InternalServerError);
 
                 throw new HttpResponseException(respMess);
             }
@@ -67,9 +67,19 @@ namespace TaskWebApi.Interface
                 throw new HttpResponseException(errMes);
             }
 
+            try
+            {
+                Context.Patients.Remove(patient);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                var errMes = ResProc.Create_ResponseMessage($"Error delete",
+                           "Error delete", System.Net.HttpStatusCode.InternalServerError);
 
-            Context.Patients.Remove(patient);
-            Context.SaveChanges();
+                throw new HttpResponseException(errMes);
+            }
+
         }
 
         public Patient Get(int id)
@@ -79,7 +89,7 @@ namespace TaskWebApi.Interface
 
             if (patient is null)
             {
-                var errMes = ResProc.Create_ResponseMessage($"Нет данных по patientId:{patient.PatientId}",
+                var errMes = ResProc.Create_ResponseMessage($"No data for patientId:{patient.PatientId}",
                             "No data", System.Net.HttpStatusCode.InternalServerError);
 
                 throw new HttpResponseException(errMes);
@@ -92,10 +102,14 @@ namespace TaskWebApi.Interface
         {
             int numPage = 3;
 
-            if (page > CountPages.GetCount_Pages(Context, numPage, ETypeModel.patn))
+            if (page > CountPages.GetCount_Pages(Context, numPage, ETypeModel.patn) || page < 0)
                 return new List<Ls_Patients>();
 
-            string strSorted = "DateBirth Address Family";
+
+            string strSorted = "DateBirth Address Family".ToUpper();  // идентификаторы сортировки
+
+            if (!string.IsNullOrEmpty(sort))
+                sort = sort.ToUpper();
 
             var lsRes = (from pcn in Context.Patients.OrderBy(p => p.PatientId).Skip((page - 1) * numPage).Take(numPage)
                          join sct in Context.Sectors on pcn.SectorId equals sct.SectorId
@@ -114,7 +128,7 @@ namespace TaskWebApi.Interface
 
             if (!string.IsNullOrEmpty(sort) && strSorted.IndexOf(sort) > -1)
             {
-                switch (sort.ToUpper())
+                switch (sort)
                 {
                     case "DATEBIRTH":
                         lsRes = lsRes.OrderBy(p => p.DateBirth).ToList();
@@ -159,8 +173,31 @@ namespace TaskWebApi.Interface
             }
 
 
+            if (patientDB.DateBirth != item.DateBirth)
+            {
+                patientDB.DateBirth = item.DateBirth;
+                res++;
+            }
 
-            // Обработка датыРождени и участка пропущена, чтобы не усложнять решение
+
+            if (patientDB.SectorId != item.SectorId)
+            {
+                patientDB.SectorId = item.SectorId;
+                res++;
+            }
+
+
+            if (patientDB.Address != item.Address)
+            {
+                patientDB.Address = item.Address;
+                res++;
+            }
+
+            if (patientDB.Pol != item.Pol)
+            {
+                patientDB.Pol = item.Pol;
+                res++;
+            }
 
 
             return res;

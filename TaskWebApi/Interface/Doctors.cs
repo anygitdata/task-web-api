@@ -17,7 +17,7 @@ namespace TaskWebApi.Interface
         {
             if (string.IsNullOrEmpty(item.FullName))
             {
-                var respMess = ResProc.Create_ResponseMessage("Не заполнено поле Ф.И.О",
+                var respMess = ResProc.Create_ResponseMessage("empty FIO",
                             "empty FIO", System.Net.HttpStatusCode.InternalServerError);
 
                 throw new HttpResponseException(respMess);
@@ -87,7 +87,7 @@ namespace TaskWebApi.Interface
 
             if (doctor is null)
             {
-                var errMes = ResProc.Create_ResponseMessage($"Нет данных по doctorId:{doctor.DoctorId}",
+                var errMes = ResProc.Create_ResponseMessage($"No data for doctorId:{doctor.DoctorId}",
                             "No data", System.Net.HttpStatusCode.InternalServerError);
 
                 throw new HttpResponseException(errMes);
@@ -98,13 +98,21 @@ namespace TaskWebApi.Interface
 
         public IEnumerable<Ls_Doctors> GetList(int page, string sort)
         {
+            /*
+             * Только участковые врачи имеют участки, поэтому используется
+             * сценарий LEFT JOIN
+             */
+
             int numPage = 3;
 
-            if (page > CountPages.GetCount_Pages(Context, numPage, ETypeModel.doct))
+            if (page > CountPages.GetCount_Pages(Context, numPage, ETypeModel.doct) || page < 0)
                 return new List<Ls_Doctors>();
 
 
-            string strSorted = "FullName Cabinet Sector";
+            if (!string.IsNullOrEmpty(sort))
+                sort = sort.ToUpper();
+
+            string strSorted = "FullName Cabinet Sector".ToUpper();   // идентификаторы сортировки
 
             var lsRes = (from doct in Context.Doctors.OrderBy(p=> p.DoctorId).Skip((page-1)*numPage).Take(numPage)
                          join cab in Context.Cabinets on doct.CabinetId equals cab.CabinetId
@@ -120,7 +128,7 @@ namespace TaskWebApi.Interface
 
             if (!string.IsNullOrEmpty(sort) && strSorted.IndexOf(sort) > -1)
             {
-                switch (sort.ToUpper())
+                switch (sort)
                 {
                     case "FULLNAME":
                         lsRes = lsRes.OrderBy(p => p.FullName).ToList();
@@ -145,33 +153,32 @@ namespace TaskWebApi.Interface
         {
             int res = 0;
 
-            // Закоментировано из соображений упрощения и тестирования проекта
-            //if (doctorDB.CabinetId != item.CabinetId)
-            //{
-            //    doctorDB.CabinetId = item.CabinetId;
-            //    res++;
-            //}
-
-
-            //if (doctorDB.SpecializationId != item.SpecializationId)
-            //{
-            //    doctorDB.SpecializationId = item.SpecializationId;
-            //    res++;
-            //}
-
-
-            //if (doctorDB.SectorId != item.SectorId)
-            //{
-            //    doctorDB.SectorId = item.SectorId;
-            //    res++;
-            //}
-
 
             if (doctorDB.FullName != item.FullName)
             {
                 doctorDB.FullName = item.FullName;
                 res++;
             }
+
+
+            if (doctorDB.CabinetId != item.CabinetId)
+            {
+                doctorDB.CabinetId = item.CabinetId;
+                res++;
+            }
+
+            if (doctorDB.SectorId != item.SectorId)
+            {
+                doctorDB.SectorId = item.SectorId;
+                res++;
+            }
+
+            if (doctorDB.SpecializationId != item.SpecializationId)
+            {
+                doctorDB.SpecializationId = item.SpecializationId;
+                res++;
+            }
+
 
 
             return res;
@@ -191,7 +198,7 @@ namespace TaskWebApi.Interface
             catch
             {
                 var response = ResProc.Create_ResponseMessage("Error modify data",
-                          "error modify data", System.Net.HttpStatusCode.InternalServerError);
+                          "Error modify data", System.Net.HttpStatusCode.InternalServerError);
 
                 throw new HttpResponseException(response);
             }
