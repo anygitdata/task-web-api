@@ -13,14 +13,14 @@ namespace TaskWebApi.Interface
         public Doctors() => Context = new WebApiContext();
 
 
-        public Doctor Add(Doctor item)
+        public ResProc Add(Doctor item)
         {
+            var resProc = new ResProc();
+
             if (string.IsNullOrEmpty(item.FullName))
             {
-                var respMess = ResProc.Create_ResponseMessage("empty FIO",
-                            "empty FIO", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(respMess);
+                resProc.Message = "empty FullName";
+                return resProc;                
             }
 
 
@@ -38,30 +38,30 @@ namespace TaskWebApi.Interface
             {
                 Context.Doctors.Add(item);
                 Context.SaveChanges();
+
+                resProc.ObjResult = item;
+                resProc.Result = true;
             }
             catch
             {
-                var response = ResProc.Create_ResponseMessage("Error save data",
-                           "error save data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(response);
+                resProc.Message = "Error save data";             
             }
 
 
-            return item;
+            return resProc;
 
         }
 
-        public void Delete(int id)
+        public ResProc Delete(int id)
         {
+            var res = new ResProc();
+
             var doctor = Context.Doctors.Find(id);
 
             if (doctor is null)
             {
-                var errMes = ResProc.Create_ResponseMessage($"No data for doctorId:{doctor.DoctorId}",
-                            "No data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(errMes);
+                res.Message = "No data";
+                return res;
             }
 
             try
@@ -69,31 +69,35 @@ namespace TaskWebApi.Interface
                 Context.Doctors.Remove(doctor);
                 Context.SaveChanges();
 
+                res.Result = true;
+
             }
             catch
             {
-                var errMes = ResProc.Create_ResponseMessage($"Error delete",
-                            "Error delete", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(errMes);
+                res.Message = "Error delete";
             }
-        
+
+            return res; 
+
         }
 
-        public Doctor Get(int id)
+        public ResProc Get(int id)
         {
+            var res = new ResProc();
 
             var doctor = Context.Doctors.Find(id);
 
             if (doctor is null)
             {
-                var errMes = ResProc.Create_ResponseMessage($"No data for doctorId:{doctor.DoctorId}",
-                            "No data", System.Net.HttpStatusCode.InternalServerError);
+                res.Message = "No data for doctorId";
+                return res; 
 
-                throw new HttpResponseException(errMes);
             }
 
-            return doctor;
+            res.ObjResult = doctor;
+            res.Result = true;
+
+            return res;
         }
 
         public IEnumerable<Ls_Doctors> GetList(int page, string sort)
@@ -112,16 +116,18 @@ namespace TaskWebApi.Interface
             if (!string.IsNullOrEmpty(sort))
                 sort = sort.ToUpper();
 
-            string strSorted = "FullName Cabinet Sector".ToUpper();   // идентификаторы сортировки
+            string strSorted = "FullName Cabinet Sector Specialization".ToUpper();   // идентификаторы сортировки
 
             var lsRes = (from doct in Context.Doctors.OrderBy(p=> p.DoctorId).Skip((page-1)*numPage).Take(numPage)
                          join cab in Context.Cabinets on doct.CabinetId equals cab.CabinetId
+                         join spec in Context.Specializations on doct.SpecializationId equals spec.SpecializationId
                          from sec in Context.Sectors.Where(p=> p.SectorId == doct.SectorId).DefaultIfEmpty()
                          select new Ls_Doctors
                          {
                              DoctorId = doct.DoctorId,
                              FullName = doct.FullName,
                              Cabinet = cab.Number,
+                             Specialization = spec.Title,
                              Sector = sec != null ? sec.Number : 0
                          }).ToList();
 
@@ -141,6 +147,10 @@ namespace TaskWebApi.Interface
                     case "SECTOR":
                         lsRes = lsRes.OrderBy(p => p.Sector).ToList();
                         break;
+
+                    case "SPECIALIZATION":
+                        lsRes = lsRes.OrderBy(p => p.Specialization).ToList();
+                        break;
                 }
             }
             
@@ -149,10 +159,18 @@ namespace TaskWebApi.Interface
 
         }
 
-        private int IsUpdate(Doctor doctorDB, Doctor item)
+        private ResProc IsUpdate(Doctor doctorDB, Doctor item)
         {
+            var resProc = new ResProc {ChangedData = false };
+
             int res = 0;
 
+            if (string.IsNullOrEmpty(item.FullName))
+            {
+                resProc.Message = "FullName empty";
+
+                return resProc;
+            }
 
             if (doctorDB.FullName != item.FullName)
             {
@@ -160,51 +178,71 @@ namespace TaskWebApi.Interface
                 res++;
             }
 
+            // Из соображений упрощения
+            // js code тестовой страницы заполняет эти поля
+            //if (doctorDB.CabinetId != item.CabinetId)
+            //{
+            //    doctorDB.CabinetId = item.CabinetId;
+            //    res++;
+            //}
 
-            if (doctorDB.CabinetId != item.CabinetId)
-            {
-                doctorDB.CabinetId = item.CabinetId;
-                res++;
-            }
+            //if (doctorDB.SectorId != item.SectorId)
+            //{
+            //    doctorDB.SectorId = item.SectorId;
+            //    res++;
+            //}
 
-            if (doctorDB.SectorId != item.SectorId)
-            {
-                doctorDB.SectorId = item.SectorId;
-                res++;
-            }
+            //if (doctorDB.SpecializationId != item.SpecializationId)
+            //{
+            //    doctorDB.SpecializationId = item.SpecializationId;
+            //    res++;
+            //}
 
-            if (doctorDB.SpecializationId != item.SpecializationId)
-            {
-                doctorDB.SpecializationId = item.SpecializationId;
-                res++;
-            }
+            if (res > 0)
+                resProc.ChangedData = true;
+            
+            resProc.Result = true;
 
-
-
-            return res;
+            return resProc;
         }
 
-        public Doctor Update(Doctor item)
+        public ResProc Update(Doctor item)
         {
-            var doctor = Context.Doctors.Find(item.DoctorId);
-
-            if (IsUpdate(doctor, item) == 0)
-                return item;
+            var res = new ResProc();
 
             try
             {
-                Context.SaveChanges();
+                var doctor = Context.Doctors.Find(item.DoctorId);
+                var resVerf = IsUpdate(doctor, item);
+
+                if (!resVerf.Result)
+                {
+                    res.Message = resVerf.Message;
+                    return res; 
+                }
+
+                switch (resVerf.ChangedData)
+                {
+                    case true:
+                        Context.SaveChanges();
+                        res.ObjResult = doctor;
+
+                        break;
+                    case false:
+                        res.ObjResult = item;
+                        break;
+                }
+
+                res.Result = true;
+
             }
             catch
             {
-                var response = ResProc.Create_ResponseMessage("Error modify data",
-                          "Error modify data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(response);
+                res.Message = "Error save";
             }
 
 
-            return doctor;
+            return res;
 
         }
         

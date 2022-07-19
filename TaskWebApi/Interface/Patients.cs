@@ -13,18 +13,30 @@ namespace TaskWebApi.Interface
         WebApiContext Context { get; }
 
         public Patients() => Context = new WebApiContext();
-        
 
-        public Patient Add(Patient item)
+
+        public ResProc Add(Patient item)
         {
-            if (string.IsNullOrEmpty(item.Family) 
-                    || string.IsNullOrEmpty(item.FirstName)
-                    || string.IsNullOrEmpty(item.LastName)   )
-            {
-                var respMess = ResProc.Create_ResponseMessage("Empty FIO",
-                            "Empty FIO", System.Net.HttpStatusCode.InternalServerError);
+            var res = new ResProc();
 
-                throw new HttpResponseException(respMess);
+            if (string.IsNullOrEmpty(item.Sername)
+                    || string.IsNullOrEmpty(item.FirstName)
+                    || string.IsNullOrEmpty(item.LastName))
+            {
+                res.Message = "Empty FIO";
+                return res;
+            }
+
+            if (item.DateBirth == default)
+            {
+                res.Message = "Empty DateBirth";
+                return res;
+            }
+
+            if (string.IsNullOrEmpty(item.Address))
+            {
+                res.Message = "Empty Address";
+                return res;
             }
 
 
@@ -35,67 +47,68 @@ namespace TaskWebApi.Interface
 
             maxId++;
 
-
             item.PatientId = maxId;
 
             try
             {
                 Context.Patients.Add(item);
                 Context.SaveChanges();
+
+                res.Result = true;
+                res.ObjResult = item;
             }
             catch
             {
-                var response = ResProc.Create_ResponseMessage("Error save data",
-                           "error save data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(response);
+                res.Message = "Error save";
             }
 
 
-            return item;
+            return res;
         }
 
-        public void Delete(int id)
+        public ResProc Delete(int id)
         {
+            var res = new ResProc();
+
             var patient = Context.Patients.Find(id);
 
             if (patient is null)
             {
-                var errMes = ResProc.Create_ResponseMessage($"No data for doctorId:{patient.PatientId}",
-                            "No data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(errMes);
+                res.Message = "No data";
+                return res;
             }
 
             try
             {
                 Context.Patients.Remove(patient);
                 Context.SaveChanges();
+
+                res.Result = true;
             }
             catch
             {
-                var errMes = ResProc.Create_ResponseMessage($"Error delete",
-                           "Error delete", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(errMes);
+                res.Message = "Error delete";
             }
 
+            return res;
         }
 
-        public Patient Get(int id)
+        public ResProc Get(int id)
         {
+            var res = new ResProc();
 
             var patient = Context.Patients.Find(id);
 
             if (patient is null)
             {
-                var errMes = ResProc.Create_ResponseMessage($"No data for patientId:{patient.PatientId}",
-                            "No data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(errMes);
+                res.Message = "No data";
+                return res;
             }
 
-            return patient;
+            res.ObjResult = patient;
+            res.Result = true;
+
+            return res;
         }
 
         public IEnumerable<Ls_Patients> GetList(int page, string sort)
@@ -106,7 +119,7 @@ namespace TaskWebApi.Interface
                 return new List<Ls_Patients>();
 
 
-            string strSorted = "DateBirth Address Family".ToUpper();  // идентификаторы сортировки
+            string strSorted = "DateBirth Address Sername".ToUpper();  // идентификаторы сортировки
 
             if (!string.IsNullOrEmpty(sort))
                 sort = sort.ToUpper();
@@ -118,7 +131,7 @@ namespace TaskWebApi.Interface
                              PatientId = pcn.PatientId,
                              DateBirth = pcn.DateBirth,
                              Address = pcn.Address,
-                             Family = pcn.Family,
+                             Family = pcn.Sername,
                              FirstName = pcn.FirstName,
                              LastName = pcn.LastName,
                              Pol = pcn.Pol ? "М" : "Ж",
@@ -134,7 +147,7 @@ namespace TaskWebApi.Interface
                         lsRes = lsRes.OrderBy(p => p.DateBirth).ToList();
                         break;
 
-                    case "FAMILY":
+                    case "SERNAME":
                         lsRes = lsRes.OrderBy(p => p.Family).ToList();
                         break;
 
@@ -148,14 +161,37 @@ namespace TaskWebApi.Interface
             return lsRes;
         }
 
-        private int IsUpdate(Patient patientDB, Patient item)
+        private ResProc IsUpdate(Patient patientDB, Patient item)
         {
+            var resProc = new ResProc { ChangedData = false };
+
             int res = 0;
 
 
-            if (patientDB.Family != item.Family)
+            if (string.IsNullOrEmpty(item.Sername) ||
+                string.IsNullOrEmpty(item.FirstName) ||
+                string.IsNullOrEmpty(item.LastName))
             {
-                patientDB.Family = item.Family;
+                resProc.Message = "Empty FIO";
+                return resProc;
+            }
+
+            if (string.IsNullOrEmpty(item.Address))
+            {
+                resProc.Message = "Empty Address";
+                return resProc;
+            }
+
+
+            if (item.DateBirth == default)
+            {
+                resProc.Message = "No DateBirth";
+                return resProc;
+            }
+
+            if (patientDB.Sername != item.Sername)
+            {
+                patientDB.Sername = item.Sername;
                 res++;
             }
 
@@ -180,18 +216,12 @@ namespace TaskWebApi.Interface
             }
 
 
-            if (patientDB.SectorId != item.SectorId)
-            {
-                patientDB.SectorId = item.SectorId;
-                res++;
-            }
-
-
             if (patientDB.Address != item.Address)
             {
                 patientDB.Address = item.Address;
                 res++;
             }
+
 
             if (patientDB.Pol != item.Pol)
             {
@@ -200,30 +230,61 @@ namespace TaskWebApi.Interface
             }
 
 
-            return res;
+            if (patientDB.SectorId != item.SectorId)
+            {
+                patientDB.SectorId = item.SectorId;
+                res++;
+            }
+
+            if (res > 0)
+            {
+                resProc.ChangedData = true;
+            }
+
+
+            resProc.Result = true;
+
+            return resProc;
         }
 
-        public Patient Update(Patient item)
+        public ResProc Update(Patient item)
         {
+            var res = new ResProc();
+
             var patient = Context.Patients.Find(item.PatientId);
 
-            if (IsUpdate(patient, item) == 0)
-                return item;
+            var resVerf = IsUpdate(patient, item);
+
+            if (!resVerf.Result)
+            {
+                res.Message = resVerf.Message;
+                return res;
+            }
 
             try
             {
-                Context.SaveChanges();
+                switch (resVerf.ChangedData)
+                {
+                    case true:
+                        Context.SaveChanges();
+                        res.ObjResult = patient;
+
+                        break;
+                    case false:
+                        res.ObjResult = item;
+                        break;
+                }
+
+                res.Result = true;
+
             }
             catch
             {
-                var response = ResProc.Create_ResponseMessage("Error modify data",
-                          "error modify data", System.Net.HttpStatusCode.InternalServerError);
-
-                throw new HttpResponseException(response);
+                res.Message = "Error modify data";
             }
 
 
-            return patient;
+            return res;
 
         }
 

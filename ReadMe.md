@@ -76,7 +76,7 @@
 	GetList список врачей:
 		основной шаблон /api/list/doctors/page/sort
 			page номер страницы 
-			sort строка для сортировки (допускается использовать "FullName Cabinet Sector") по умолчанию DoctorId
+			sort строка для сортировки (допускается использовать "FullName Cabinet Sector Specializatio") по умолчанию DoctorId
 		Возможные варианты построения URL:
 			/api/list/doctors			-> первая страница сортировка по DoctorId
 			/api/list/doctors/sort	-> первая страница сортировка по полю sort
@@ -110,7 +110,7 @@
 	GetList список пациентов:
 		основной шаблон /api/list/patients/page/sort
 			page номер страницы 
-			sort строка для сортировки (допускается использовать "DateBirth Address Family") по умолчанию PatientId
+			sort строка для сортировки (допускается использовать "DateBirth Address Sername") по умолчанию PatientId
 		Возможные варианты построения URL:
 			/api/list/patients			-> первая страница сортировка по PatientId
 			/api/list/patients/sort	-> первая страница сортировка по полю sort

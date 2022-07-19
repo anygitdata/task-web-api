@@ -11,36 +11,54 @@ namespace TaskWebApi.Controllers
         IPatients servPatients = new Patients();
 
 
-        public IEnumerable<Ls_Patients> GetList(int page=1, string sort= "PatientId")
+        public IEnumerable<Ls_Patients> GetList(int page = 1, string sort = "PatientId")
         {
             return servPatients.GetList(page, sort);
         }
 
 
-        public Patient Get(int id)
+        public IHttpActionResult Get(int id)
         {
-            return servPatients.Get(id);
-        }
+            var res = servPatients.Get(id);
+            if (!res.Result)
+                return BadRequest(res.Message);
 
-
-        [HttpPost]
-        public Patient Add(Patient item)
-        {
-            return servPatients.Add(item);
+            return Ok(res.ObjResult as Patient);
         }
 
 
         [HttpDelete]
-        public void Delete(int id)
+        public IHttpActionResult Delete(int id)
         {
-            servPatients.Delete(id);
+            var res = servPatients.Delete(id);
+            if (!res.Result)
+                return BadRequest(res.Message);
+
+            return Ok();
+
+        }
+
+
+        [HttpPost]
+        public IHttpActionResult Add(Patient item)
+        {
+            var res = servPatients.Add(item);
+            if (!res.Result)
+                return BadRequest(res.Message);
+
+            return Ok(res.ObjResult as Patient);
         }
 
 
         [HttpPut]
-        public Patient Update(Patient item)
+        public IHttpActionResult Update(Patient item)
         {
-            return servPatients.Update(item);
+            var res = servPatients.Update(item);
+
+            if (!res.Result)
+                return BadRequest(res.Message);
+
+            return Ok(res.ObjResult as Patient);
         }
 
     }

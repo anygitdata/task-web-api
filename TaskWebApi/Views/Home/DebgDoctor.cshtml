@@ -82,9 +82,7 @@
 
 <div class="container mt-2 border-top border-bottom border-dark py-2 mb-2 mainDiv">
 
-    <div class="text-danger" id="divErrorAdd">
-
-    </div>
+    
     <h5>Добавление доктора</h5>
 
     <div class="form-group">
@@ -160,14 +158,16 @@
 
                 let FullName = $('#FullName');
                 let val = FullName.val();
+                //let divErr = $('#divErrorLoad');
+
 
                 let idDoctor = $('#idFolLoadData').val();
 
 
-                if (val == '') {
-                    divErr.text('Поле Фамилия И.О. не заполнено');
-                    return;
-                }
+                //if (val == '') {
+                //    divErr.text('Поле Фамилия И.О. не заполнено');
+                //    return;
+                //}
 
                 let path = '/api/doctors/';
 

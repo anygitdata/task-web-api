@@ -38,7 +38,7 @@
                 <h6>Доступные идентификаторы сортировки:</h6>
                 <ul class="ulLoadList">
                     <li>DATEBIRTH</li>
-                    <li>FAMILY</li>
+                    <li>SERNAME</li>
                     <li>ADDRESS</li>
                 </ul>
             </div>
@@ -59,7 +59,7 @@
 
             <label>Заполнить шаблон, не нарушая структуру (Pol false-> женский true-> мужской)</label>
             <input class="form-control" id="txt_AddPatient" type="text"
-                   value='{"Family": " ", "FirstName": " ", "LastName": " ", "Address": " ", "DateBirth": "1970-11-30", "Pol": false , "SectorId": 1}' />
+                   value='{"Sername": " ", "FirstName": " ", "LastName": " ", "Address": " ", "DateBirth": "1970-11-30", "Pol": false , "SectorId": 1}' />
         </div>
         <button class="btnDefault" id="btnAddPatient">Добавить пациента</button>
     </div>
@@ -204,7 +204,7 @@
                             let ul = $('<ul></ul>');
                             
                             ul.append($('<li></li>').text('PatientId:' + data.PatientId));
-                            ul.append($('<li></li>').text('Family:' + data.Family));
+                            ul.append($('<li></li>').text('Sername:' + data.Sername));
                             ul.append($('<li></li>').text('FirstName:' + data.FirstName));
                             ul.append($('<li></li>').text('LastName:' + data.LastName));
                             ul.append($('<li></li>').text('Address:' + data.Address));

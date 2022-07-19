@@ -15,15 +15,15 @@
 
     <h5>Шаблон url for dortor:</h5>
     <ul>
-        <li>Учетная карточка: /api/doctors/id (адресная строка браузера)</li>
-        <li>Список докторов: (адресная строка браузера)</li>
+        <li>Учетная карточка url: /api/doctors/id </li>
+        <li>Список докторов: </li>
         <li>
             <ul style="list-style-type">
                 <li class="ulDetail">
-                    основной шаблон: /api/list/doctors/page/sort <br />
+                    основной шаблон url: /api/list/doctors/page/sort <br />
                     <span>page - числовой идентификатор номера страницы (по умолчанию 1) </span><br />
                     <span>sort - строковый идентификатор сортироваки (по умолчанию используется DoctrorId)</span><br />
-                    <span>Поля для сортировки: FullName Cabinet Sector (регистр не имеет значения) </span> <br />
+                    <span>Поля для сортировки: FullName Cabinet Sector Specialization (регистр не имеет значения) </span> <br />
                     <span>
                         Возможные варианты построения запроса: <br />
                         /api/FullName -> первая страница сортировка по фамилии <br />
@@ -44,15 +44,15 @@
 
     <h5>Шаблон url for patient:</h5>
     <ul>
-        <li>Учетная карточка: /api/patient/id</li>
+        <li>Учетная карточка url: /api/patient/id</li>
         <li>Список пациентов:</li>
         <li>
             <ul style="list-style-type">
                 <li class="ulDetail">
-                    основной шаблон: /api/list/patients/page/sort <br />
+                    основной шаблон url: /api/list/patients/page/sort <br />
                     <span>page - числовой идентификатор номера страницы (по умолчанию 1) </span><br />
                     <span>sort - строковый идентификатор сортироваки (по умолчанию используется PatientId)</span><br />
-                    <span>Поля для сортировки: DateBirth Address Family (регистр не имеет значения) </span> <br />
+                    <span>Поля для сортировки: DateBirth Address Sername (регистр не имеет значения) </span> <br />
                     <span>
                         Возможные варианты построения запроса: <br />
                         /api/address -> первая страница сортировка по фамилии <br />

@@ -14,14 +14,14 @@ namespace TaskWebApi.Models
         public string FullName { get; set; }
 
 
-        public int CabinetId { get; set; }
+        public int CabinetId { get; set; } = 1;
         public Cabinet Cabinet { get; set; }
 
 
-        public int SpecializationId { get; set; }
+        public int SpecializationId { get; set; } = 1;
         public Specialization Specialization { get; set; }
 
-        public int? SectorId { get; set; }
+        public int? SectorId { get; set; } = null;
         public Sector Sector { get; set; }
 
     }

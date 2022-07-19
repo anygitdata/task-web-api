@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNet.Identity;
+using System.Collections.Generic;
 using System.Web.Http;
 using TaskWebApi.Interface;
 using TaskWebApi.Models;
@@ -21,37 +22,54 @@ namespace TaskWebApi.Controllers
             return servDoctors.GetList(page, sort);
         }
 
-        public Doctor Get(int id)
+
+        public IHttpActionResult Get(int id)
         {
 
-            return servDoctors.Get(id);
+            var res = servDoctors.Get(id);
+
+            if (!res.Result)
+                return BadRequest(res.Message);
+
+            return Ok(res.ObjResult as Doctor);
         }
 
 
         [HttpPost]
-        public Doctor Add(Doctor item)
+        public IHttpActionResult Add(Doctor item)
         {
-            return servDoctors.Add(item);
+            var res = servDoctors.Add(item);
+
+            if (!res.Result)
+                return BadRequest(res.Message);
+
+            return Ok(res.ObjResult as Doctor);
         }
 
 
         [HttpDelete]
-        public void Delete(int id)
+        public IHttpActionResult Delete(int id)
         {
-            servDoctors.Delete(id);
+            var res = servDoctors.Delete(id);
+
+            if (!res.Result)
+                return BadRequest(res.Message);
+
+            return Ok();
         }
 
 
         [HttpPut]
-        public Doctor Update(Doctor item)
+        public IHttpActionResult Update(Doctor item)
         {
             var res = servDoctors.Update(item);
+            if (!res.Result)
+            {
+                return BadRequest(res.Message);
+            }
 
-
-            return res; 
+            return Ok(res.ObjResult as Doctor); 
         }
-
-
 
 
     }

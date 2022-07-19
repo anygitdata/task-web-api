@@ -9,8 +9,12 @@ namespace TaskWebApi.Models
 {
     public class ResProc
     {
-        public bool Resutl { get; set; } = false;
+        public bool Result { get; set; } = false;
         public string Message { get; set; } = "ok";
+
+        public object ObjResult { get; set; }
+
+        public bool ChangedData { get; set; } = true;
 
         public HttpResponseMessage ResponseMessage { get; set; } = null;
 
@@ -27,7 +31,7 @@ namespace TaskWebApi.Models
         }
 
 
-        
+
 
     }
 }

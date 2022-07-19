@@ -5,12 +5,12 @@ namespace TaskWebApi.Interface
 {
     public interface IPatients
     {
-        Patient Add(Patient item);
-        Patient Update(Patient item);
-        void Delete(int id);
+        ResProc Add(Patient item);
+        ResProc Update(Patient item);
+        ResProc Delete(int id);
 
 
-        Patient Get(int id);
+        ResProc Get(int id);
         IEnumerable<Ls_Patients> GetList(int page, string sort);
     }
 }

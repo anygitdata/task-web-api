@@ -12,7 +12,7 @@ namespace TaskWebApi.Models
         [Required]
         [Column(TypeName = "varchar")]
         [MaxLength(50)]
-        public string Family { get; set; }
+        public string Sername { get; set; }
 
         [Required]
         [Column(TypeName = "varchar")]

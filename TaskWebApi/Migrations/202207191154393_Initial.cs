@@ -48,7 +48,7 @@
                 c => new
                     {
                         PatientId = c.Int(nullable: false),
-                        Family = c.String(nullable: false, maxLength: 50, unicode: false),
+                        Sername = c.String(nullable: false, maxLength: 50, unicode: false),
                         FirstName = c.String(nullable: false, maxLength: 50, unicode: false),
                         LastName = c.String(nullable: false, maxLength: 50, unicode: false),
                         Address = c.String(nullable: false, maxLength: 100, unicode: false),

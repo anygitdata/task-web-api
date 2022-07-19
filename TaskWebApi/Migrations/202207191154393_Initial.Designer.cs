@@ -13,7 +13,7 @@ namespace TaskWebApi.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202207141056202_Initial"; }
+            get { return "202207191154393_Initial"; }
         }
         
         string IMigrationMetadata.Source
